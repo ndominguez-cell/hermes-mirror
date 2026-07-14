@@ -1,0 +1,48 @@
+{
+  "jobs": [
+    {
+      "id": "601ec47aca00",
+      "name": "hermes-daily-backup",
+      "prompt": "Daily backup of the Hermes home to private repo ndominguez-cell/hermes-mirror via hermes_backup_run.sh (mirror + redact + credential-scan + commit + push). Silent when nothing changed.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": null,
+      "model_snapshot": null,
+      "base_url": null,
+      "script": "hermes_backup_run.sh",
+      "no_agent": true,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 7 * * *",
+        "display": "0 7 * * *"
+      },
+      "schedule_display": "0 7 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 0
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-07-14T21:28:16.157493+00:00",
+      "next_run_at": "2026-07-15T07:00:00+00:00",
+      "last_run_at": null,
+      "last_status": null,
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": null,
+      "workdir": null,
+      "fire_claim": {
+        "at": "2026-07-14T21:28:21.226250+00:00",
+        "by": "7841502cd74558:107"
+      }
+    }
+  ],
+  "updated_at": "2026-07-14T21:28:21.227471+00:00"
+}

@@ -1,0 +1,52 @@
+# Safety net: re-block sensitive paths even if the mirror logic misses one.
+# The backup script already excludes these, but defense in depth.
+
+# Secrets / auth
+auth.json
+auth*
+.env
+.env.*
+.secrets/
+*.token
+.git-credentials
+.gitconfig
+
+# Live state / runtime
+state.db
+state.db-*
+*.db-shm
+*.db-wal
+*.pid
+*.lock
+gateway_state.json
+channel_directory.json
+pairing/
+hooks/
+
+# History / ephemera / caches
+sessions/
+logs/
+audio_cache/
+image_cache/
+sandboxes/
+cache/
+.cache/
+.npm/
+.local/
+lazy-packages/
+runtime/
+backups/
+portal-recovery/
+*_cache.json
+*.bak-*
+.skills_prompt_snapshot.json
+kanban.db*
+
+# Skill hub caches / curator backups
+.hub/
+index-cache/
+.curator_backups/
+hermes-index.json
+
+# Never mirror the mirror
+code/
