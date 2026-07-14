@@ -94,9 +94,11 @@ def main():
 
     kept, redacted_files, leaks = [], [], []
 
-    # 1) Wipe DST contents (except .git) so deletions in source propagate.
+    # 1) Wipe DST contents (except .git and repo-meta files) so deletions
+    #    in the source propagate, but README/.gitignore survive each run.
+    PRESERVE = {".git", "README.md", ".gitignore"}
     for entry in os.listdir(DST):
-        if entry == ".git":
+        if entry in PRESERVE:
             continue
         p = os.path.join(DST, entry)
         shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
