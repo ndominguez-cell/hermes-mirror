@@ -115,6 +115,7 @@ delegation:
   max_iterations: 50
 skills:
   creation_nudge_interval: 15
+  disabled: []
 cron:
   provider: chronos
   chronos:

@@ -1,6 +1,6 @@
 ---
 name: hermes-state-backup
-description: "Mirror/back up the Hermes home dir to a private git remote — safe excludes, secret redaction, daily cron."
+description: "Mirror/back up AND restore the Hermes home dir via a private git remote — safe excludes, secret redaction, daily cron, non-destructive 'install a mirror repo' restore."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -70,7 +70,20 @@ Write a README explaining the layout (`config.yaml` = redacted config, `pantheon
 
 Wire a `cronjob` (or a script the cron runs) that re-does rsync → redact → scan → commit → push. Put the whole thing in a script under `scripts/` and have cron invoke it. Reuses the token from `.secrets/`. In the TUI, cron output isn't delivered to the session — set `deliver` to a messaging platform if the user wants notified.
 
+## Restoring / "installing" a mirror onto a machine
+
+When a user says "install this hermes-mirror repo," they usually mean restore its contents into the Hermes home — a **destructive overlay**, not a normal app install. Do NOT blindly copy over the live home.
+
+1. **Detect whether the mirror is a backup OF this same agent first.** Clone to a scratch path OUTSIDE the home, then diff against the live tree:
+   ```bash
+   diff -rq /path/to/live/skills /scratch/hermes-mirror/skills
+   ```
+   If the skill lists are identical (and content nearly so), the mirror is a backup of *this* agent — "installing" is a no-op at best. Watch for cases where the **live file is NEWER/richer** than the mirror's (e.g. a skill you improved since last backup): copying the mirror in would REGRESS it. Never overwrite a newer local file with an older mirror copy.
+2. **Clarify scope before touching anything.** Offer: skills-only merge / full destructive restore / leave-cloned-for-inspection. `config.yaml` in the mirror is redacted (`<REDACTED>` secrets) — restoring it breaks providers until `hermes setup` re-supplies keys.
+3. **To push a local improvement back UP to the mirror, run the existing backup script** (Step 7's `hermes_backup_run.sh`) — it copies from the live home, so it picks up your change automatically and handles redact→scan→commit→push. Don't hand-craft a git push.
+
 ## Pitfalls
+- **Never clone a reference/mirror repo INTO the Hermes home** (the backup source tree). The next backup run sweeps it up as a nested `hermes-mirror/` subfolder inside the mirror. Clone to a scratch dir outside the home, or add it to the exclude set. If it already got swept in, remove the clone and re-run the backup to clean it out.
 - **No rsync on hosted instances** (and no root to `apt-get` it). Use a Python mirror script instead — it also cleanly hosts the redaction + credential scan. Walk the tree, apply gitignore-style excludes, wipe the mirror tree each run (PRESERVE `.git`, `README.md`, `.gitignore`) so source deletions propagate without nuking repo-meta.
 - **Credential scan needs two tiers or it drowns in false positives.** A blunt `grep api_key|secret|password|token` flags var names (`messageSecret`), arithmetic (`max_tokens = x*50`), and doc placeholders (`sk-xxx...xxxx`, `pat_your_token_here`) — a stock Hermes skills tree throws ~34 such hits. Use: (a) high-confidence real-secret signatures (`sk-[A-Za-z0-9]{20,}`, `ghp_{30,}`, `github_pat_{60,}`, `AIza…`, `xox[baprs]-…`, `-----BEGIN … PRIVATE KEY-----`, JWT `eyJ….….…`) that hard-abort, BUT skip all-`x`/low-charset-diversity placeholders; plus (b) `key: value` assignments where the value is contiguous (no whitespace/`()*+/`), ≥16 chars, mixed alnum, and not a placeholder. `config.yaml` on portal builds often has ZERO real keys (they live in `auth.json`) — 0 secrets masked is normal, not a bug.
 - **Skill hub caches are huge and regenerable** — exclude `.hub/`, `index-cache/`, `hermes-index.json` (can be ~38MB), and `.curator_backups/`. Cuts the mirror from ~48MB to ~7MB.
