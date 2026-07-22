@@ -1,0 +1,7 @@
+{
+  "action": "drain",
+  "requested_at": "2026-07-21T21:01:04.920693+00:00",
+  "principal": "drain-control",
+  "epoch": "3519434c-5295-4b25-8b91-afebf0f4ab99:61",
+  "suppress_notification": true
+}
